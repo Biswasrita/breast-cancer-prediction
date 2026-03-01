@@ -9,7 +9,6 @@ scaler = pickle.load(open("scaler.pkl", "rb"))
 
 st.title("Breast Cancer Prediction App")
 
-st.warning("This app is for educational purposes only.")
 
 st.header("Tumor Features")
 
@@ -86,3 +85,4 @@ if st.button("Predict Manually"):
         st.error(f"Cancer Detected (Malignant) — Confidence: {prob:.2f}%")
     else:
         st.success(f"No Cancer (Benign) — Confidence: {prob:.2f}%")
+
