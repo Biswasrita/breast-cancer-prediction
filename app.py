@@ -19,23 +19,22 @@ st.set_page_config(page_title="Breast Cancer Prediction", layout="wide")
 
 st.title("Breast Cancer Prediction App")
 
-st.warning("This app is for educational purposes only and not medical diagnosis.")
-
 # ============================================================
 # SIDEBAR
 # ============================================================
 
 st.sidebar.title("Model Info")
 
-st.sidebar.metric("Model Accuracy", "97.8%")
-
 st.sidebar.info("""
 Model: Neural Network  
 Dataset: Breast Cancer Wisconsin  
 Features: 30 Tumor Measurements  
-Output:
-0 = Malignant (Cancer)
-1 = Benign (No Cancer)
+
+Prediction Output:
+
+0 = Malignant (Cancer)  
+1 = Benign (No Cancer)  
+
 """)
 
 # ============================================================
@@ -52,47 +51,45 @@ feature_names = [
 ]
 
 # ============================================================
-# FEATURE DESCRIPTION SECTION
+# FEATURE DESCRIPTION
 # ============================================================
 
-with st.expander("What are these 30 features?"):
+with st.expander("About the 30 Features"):
 
     st.write("""
 
-These features are calculated from a breast tumor biopsy image.
+These features are calculated from breast tumor biopsy images.
 
-They describe characteristics of tumor cells:
+They describe tumor characteristics:
 
-• Radius → Size of tumor
+• Radius → tumor size  
 
-• Texture → Variation in pixel intensity
+• Texture → pixel variation  
 
-• Perimeter → Boundary length
+• Perimeter → tumor boundary  
 
-• Area → Tumor area
+• Area → tumor area  
 
-• Smoothness → How smooth tumor surface is
+• Smoothness → surface smoothness  
 
-• Compactness → Shape complexity
+• Compactness → shape complexity  
 
-• Concavity → Depth of concave portions
+• Concavity → tumor concave regions  
 
-• Concave points → Number of concave regions
+• Symmetry → tumor symmetry  
 
-• Symmetry → Tumor symmetry
+Worst = worst value  
 
-• Fractal dimension → Shape irregularity
+Mean = average  
 
-Mean = average value  
 Error = variation  
-Worst = worst case value  
 
-These help AI detect cancer.
+These features help predict cancer.
 
 """)
 
 # ============================================================
-# SELECT OPTION
+# INPUT METHOD
 # ============================================================
 
 option = st.radio(
@@ -104,7 +101,7 @@ option = st.radio(
 )
 
 # ============================================================
-# MANUAL INPUT SECTION
+# MANUAL INPUT
 # ============================================================
 
 if option == "Manual Input":
@@ -139,47 +136,43 @@ if option == "Manual Input":
 
         confidence = np.max(prediction)*100
 
-        st.subheader("Result")
+        st.subheader("Prediction Result")
 
         if result == 0:
 
-            st.error(f"Malignant (Cancer Detected)")
+            st.error("Malignant (Cancer Detected)")
 
         else:
 
-            st.success(f"Benign (No Cancer)")
+            st.success("Benign (No Cancer)")
 
         st.write(f"Confidence: {confidence:.2f}%")
 
         # GRAPH
 
-        st.subheader("Confidence Graph")
+        chart = pd.DataFrame({
 
-        chart_data = pd.DataFrame({
-
-            "Result":["Confidence"],
-
-            "Value":[confidence]
+            "Confidence":[confidence]
 
         })
 
-        st.bar_chart(chart_data.set_index("Result"))
+        st.bar_chart(chart)
 
 # ============================================================
-# CSV UPLOAD SECTION
+# CSV INPUT
 # ============================================================
 
 if option == "Upload CSV File":
 
     st.subheader("Upload CSV")
 
-    file = st.file_uploader("Upload file")
+    file = st.file_uploader("Choose CSV file")
 
     if file is not None:
 
         data = pd.read_csv(file)
 
-        st.write("Input Data")
+        st.write("Uploaded Data")
 
         st.dataframe(data)
 
@@ -199,7 +192,7 @@ if option == "Upload CSV File":
 
         st.dataframe(data)
 
-        # BAR GRAPH
+        # PREDICTION GRAPH
 
         st.subheader("Prediction Graph")
 
@@ -213,13 +206,13 @@ if option == "Upload CSV File":
 
         st.line_chart(data["Confidence %"])
 
-        # DOWNLOAD BUTTON
+        # DOWNLOAD
 
         csv = data.to_csv(index=False).encode("utf-8")
 
         st.download_button(
 
-            "Download Result",
+            "Download Results",
 
             csv,
 
