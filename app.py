@@ -1,42 +1,41 @@
 import streamlit as st
 import numpy as np
-import pickle
 import pandas as pd
+import pickle
 from tensorflow import keras
 
-# -----------------------------
+# --------------------------
 # Load model and scaler
-# -----------------------------
+# --------------------------
 
 model = keras.models.load_model("breast_cancer_model.h5")
 scaler = pickle.load(open("scaler.pkl", "rb"))
 
-# -----------------------------
-# Page config
-# -----------------------------
+# --------------------------
+# Page settings
+# --------------------------
 
-st.set_page_config(page_title="Breast Cancer Predictor", layout="wide")
+st.set_page_config(page_title="Breast Cancer Prediction", layout="wide")
 
 st.title("Breast Cancer Prediction App")
 
+st.warning("This app is for educational purposes only and not for medical diagnosis.")
 
-# -----------------------------
-# Sidebar
-# -----------------------------
-
-st.sidebar.title("Options")
+# --------------------------
+# Sidebar option
+# --------------------------
 
 option = st.sidebar.selectbox(
 
-    "Choose Prediction Method",
+    "Choose Input Method",
 
-    ("Use Sample Data", "Upload CSV File")
+    ("Manual Input (30 Features)", "Upload CSV File")
 
 )
 
-# -----------------------------
-# Feature Names
-# -----------------------------
+# --------------------------
+# Feature names
+# --------------------------
 
 feature_names = [
 "mean radius","mean texture","mean perimeter","mean area","mean smoothness",
@@ -47,87 +46,111 @@ feature_names = [
 "worst compactness","worst concavity","worst concave points","worst symmetry","worst fractal dimension"
 ]
 
-# -----------------------------
-# SAMPLE DATA OPTION
-# -----------------------------
+# ============================================================
+# OPTION 1: MANUAL INPUT
+# ============================================================
 
-if option == "Use Sample Data":
+if option == "Manual Input (30 Features)":
 
-    st.subheader("Click button to test prediction")
+    st.subheader("Enter Tumor Feature Values")
 
-    sample = [
-    17.99,10.38,122.8,1001,0.118,0.277,0.300,0.147,0.242,0.078,
-    1.095,0.905,8.589,153.4,0.006,0.049,0.053,0.015,0.030,0.006,
-    25.38,17.33,184.6,2019,0.162,0.665,0.711,0.265,0.460,0.118
-    ]
+    features = []
 
-    if st.button("Predict Sample"):
+    col1, col2 = st.columns(2)
 
-        input_data = np.array([sample])
+    for i, name in enumerate(feature_names):
 
-        input_data = scaler.transform(input_data)
+        if i % 2 == 0:
 
-        prediction = model.predict(input_data)
+            value = col1.number_input(name, format="%.5f")
+
+        else:
+
+            value = col2.number_input(name, format="%.5f")
+
+        features.append(value)
+
+    if st.button("Predict"):
+
+        input_data = np.array([features])
+
+        input_scaled = scaler.transform(input_data)
+
+        prediction = model.predict(input_scaled)
 
         result = np.argmax(prediction)
 
         prob = np.max(prediction)*100
 
-        st.subheader("Result")
+        st.subheader("Prediction Result")
 
         if result == 0:
 
-            st.error(f"Cancer Detected (Malignant)\nConfidence: {prob:.2f}%")
+            st.error(f"Malignant (Cancer Detected)\nConfidence: {prob:.2f}%")
 
         else:
 
-            st.success(f"No Cancer (Benign)\nConfidence: {prob:.2f}%")
+            st.success(f"Benign (No Cancer)\nConfidence: {prob:.2f}%")
 
-# -----------------------------
-# CSV UPLOAD OPTION
-# -----------------------------
+# ============================================================
+# OPTION 2: CSV UPLOAD
+# ============================================================
 
 elif option == "Upload CSV File":
 
-    st.subheader("Upload CSV file with 30 features")
+    st.subheader("Upload CSV File")
 
-    file = st.file_uploader("Choose CSV file")
+    st.info("CSV file must contain all 30 feature columns.")
 
-    if file is not None:
+    uploaded_file = st.file_uploader("Choose CSV file", type=["csv"])
 
-        data = pd.read_csv(file)
+    if uploaded_file is not None:
+
+        data = pd.read_csv(uploaded_file)
 
         st.write("Uploaded Data")
 
         st.dataframe(data)
 
-        data_scaled = scaler.transform(data)
+        scaled_data = scaler.transform(data)
 
-        prediction = model.predict(data_scaled)
+        prediction = model.predict(scaled_data)
 
         result = np.argmax(prediction, axis=1)
 
+        probability = np.max(prediction, axis=1)*100
+
         data["Prediction"] = result
 
-        st.subheader("Prediction Result")
+        data["Confidence %"] = probability
+
+        st.subheader("Prediction Results")
 
         st.dataframe(data)
 
-# -----------------------------
-# Info section
-# -----------------------------
+# --------------------------
+# Sidebar info
+# --------------------------
+
+st.sidebar.title("About")
 
 st.sidebar.info("""
 
-This app predicts breast cancer using Neural Network.
+Breast Cancer Prediction App
 
-Input: Tumor features
+Built using:
+
+TensorFlow  
+Streamlit  
+Neural Network  
+
+Input:
+
+30 Tumor Features
 
 Output:
 
-0 = Malignant
-
-1 = Benign
+0 = Malignant  
+1 = Benign  
 
 """)
-
