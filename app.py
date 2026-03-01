@@ -19,7 +19,6 @@ st.set_page_config(page_title="Breast Cancer Predictor", layout="wide")
 
 st.title("Breast Cancer Prediction App")
 
-st.warning("For educational purposes only. Not for medical use.")
 
 # -----------------------------
 # Sidebar
@@ -131,3 +130,4 @@ Output:
 1 = Benign
 
 """)
+
