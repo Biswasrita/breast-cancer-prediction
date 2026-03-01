@@ -19,7 +19,7 @@ st.set_page_config(page_title="Breast Cancer Prediction", layout="wide")
 
 st.title("Breast Cancer Prediction App")
 
-st.warning("This app is for educational purposes only and not for medical diagnosis.")
+st.warning("This app is for educational purposes only.")
 
 # --------------------------
 # Sidebar option
@@ -47,7 +47,7 @@ feature_names = [
 ]
 
 # ============================================================
-# OPTION 1: MANUAL INPUT
+# MANUAL INPUT
 # ============================================================
 
 if option == "Manual Input (30 Features)":
@@ -93,14 +93,12 @@ if option == "Manual Input (30 Features)":
             st.success(f"Benign (No Cancer)\nConfidence: {prob:.2f}%")
 
 # ============================================================
-# OPTION 2: CSV UPLOAD
+# CSV UPLOAD + DOWNLOAD RESULT
 # ============================================================
 
 elif option == "Upload CSV File":
 
     st.subheader("Upload CSV File")
-
-    st.info("CSV file must contain all 30 feature columns.")
 
     uploaded_file = st.file_uploader("Choose CSV file", type=["csv"])
 
@@ -128,6 +126,22 @@ elif option == "Upload CSV File":
 
         st.dataframe(data)
 
+        # DOWNLOAD BUTTON
+
+        csv = data.to_csv(index=False).encode("utf-8")
+
+        st.download_button(
+
+            label="Download Results CSV",
+
+            data=csv,
+
+            file_name="prediction_results.csv",
+
+            mime="text/csv"
+
+        )
+
 # --------------------------
 # Sidebar info
 # --------------------------
@@ -138,19 +152,10 @@ st.sidebar.info("""
 
 Breast Cancer Prediction App
 
-Built using:
+Features:
 
-TensorFlow  
-Streamlit  
-Neural Network  
-
-Input:
-
-30 Tumor Features
-
-Output:
-
-0 = Malignant  
-1 = Benign  
+Manual prediction  
+CSV batch prediction  
+Download results  
 
 """)
